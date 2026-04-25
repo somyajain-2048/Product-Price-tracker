@@ -1,0 +1,45 @@
+#ppt-floating-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #2563EB;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+  cursor: pointer;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+#ppt-floating-btn:hover {
+  background-color: #1D4ED8;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.5);
+}
+
+#ppt-floating-btn.ppt-saving {
+  background-color: #F59E0B;
+  pointer-events: none;
+}
+
+#ppt-floating-btn.ppt-success {
+  background-color: #10B981;
+  pointer-events: none;
+}
+
+#ppt-floating-btn.ppt-error {
+  background-color: #EF4444;
+}
+
+#ppt-floating-btn svg {
+  width: 20px;
+  height: 20px;
+}
