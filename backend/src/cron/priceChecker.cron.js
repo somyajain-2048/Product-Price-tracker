@@ -1,73 +1,68 @@
 import cron from "node-cron";
-
 import Product from "../modules/product/product.model.js";
-
+import User from "../modules/auth/auth.model.js";
 import { scrapeProduct } from "../services/scraper.service.js";
 import { sendPriceDropEmail } from "../services/notifications/email.service.js";
 
-// ===================================
-// PRICE CHECKER CRON
-// ===================================
-
 const startPriceChecker = () => {
-  // Every 6 hours
-  cron.schedule("0 */6 * * * ", async () => {
-    console.log("Running price checker...");
+  // Runs every 2 hours
+  cron.schedule("0 */2 * * *", async () => {
+    console.log(`[${new Date().toISOString()}] Price checker started`);
 
     try {
-      // Get all tracked products
       const products = await Product.find();
+      console.log(`[PriceCheck] Checking ${products.length} products...`);
 
       for (const product of products) {
         try {
-          // Scrape latest data
+          // Small delay between each product to avoid bot detection
+          await new Promise((r) => setTimeout(r, 3000));
+
           const scrapedData = await scrapeProduct(product.url);
-
           const oldPrice = product.currentPrice;
-
           const newPrice = scrapedData.currentPrice;
 
-          console.log(`${product.title} | Old: ${oldPrice} | New: ${newPrice}`);
+          console.log(`[PriceCheck] "${product.title}" | ₹${oldPrice} → ₹${newPrice}`);
 
-          // Update current price
-        //   product.currentPrice = newPrice;
+          if (newPrice < oldPrice) {
+            console.log(`[PriceCheck] Price dropped — sending alert...`);
 
+            const user = await User.findById(product.userId);
 
-        if (newPrice < oldPrice) {
-          console.log("PRICE DROPPED!");
+            if (user?.email) {
+              await sendPriceDropEmail({
+                to: user.email,
+                userName: user.name,
+                productTitle: product.title,
+                oldPrice,
+                newPrice,
+                productUrl: product.url,
+                productImage: product.image,
+              });
+            }
+          }
 
-          await sendPriceDropEmail({
-            to: "somyajain20048@gmail.com",
-
-            productTitle: product.title,
-
-            oldPrice,
-
-            newPrice,
-
-            productUrl: product.url,
-          });
-        }
-
-        product.currentPrice = newPrice;
+          product.currentPrice = newPrice;
 
           if (!product.lowestPrice || newPrice < product.lowestPrice) {
             product.lowestPrice = newPrice;
           }
 
-          product.priceHistory.push({
-            price: newPrice,
-          });
+          product.priceHistory.push({ price: newPrice });
 
           await product.save();
-        } catch (error) {
-          console.log(`Failed to update ${product.title}`);
+        } catch (err) {
+          console.error(`[PriceCheck] Failed for "${product.title}":`, err.message);
         }
       }
-    } catch (error) {
-      console.log("CRON ERROR:", error);
+
+      console.log(`[PriceCheck] Done.`);
+    } catch (err) {
+      console.error("[PriceCheck] Fatal cron error:", err.message);
     }
   });
+
+  console.log("[PriceCheck] Cron scheduled — runs every 2 hours");
 };
 
 export default startPriceChecker;

@@ -229,3 +229,122 @@ const scrapeAmazon = async (url) => {
 // Service saves product in MongoDB
 //         ↓
 // Response returned
+
+// =========================
+// SEARCH COMPETITOR SCRAPERS
+// =========================
+
+export const searchProduct = async (query, targetSite) => {
+  if (targetSite === "flipkart") {
+    return await searchFlipkart(query);
+  }
+  if (targetSite === "amazon") {
+    return await searchAmazon(query);
+  }
+  throw new Error("Unsupported target site");
+};
+
+const searchFlipkart = async (query) => {
+  const browser = await puppeteer.launch({ headless: true });
+  try {
+    const page = await browser.newPage();
+    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36");
+    
+    const cleanQuery = query.split("-")[0].substring(0, 50).trim();
+    const url = `https://www.flipkart.com/search?q=${encodeURIComponent(cleanQuery)}`;
+    
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    
+    const result = await page.evaluate(() => {
+      const firstLink = document.querySelector('a[target="_blank"][rel="noopener noreferrer"]');
+      if (!firstLink) return null;
+      const url = firstLink.href;
+      
+      const titleDiv = document.querySelector('div.KzDlHZ') || document.querySelector('a.WKTcLC');
+      const title = titleDiv ? titleDiv.innerText : document.querySelector('a[target="_blank"] img')?.alt || "Flipkart Product";
+
+      const priceDiv = document.querySelector('div.Nx9bqj') || document.querySelector('div._30jeq3');
+      const priceText = priceDiv ? priceDiv.innerText : null;
+
+      const image = document.querySelector('img.DByuf4')?.src || document.querySelector('img._396cs4')?.src || document.querySelector('img')?.src;
+
+      return { title, priceText, url, image };
+    });
+
+    if (!result || !result.priceText) throw new Error("Could not find product on Flipkart");
+
+    const cleanedPrice = Number(result.priceText.replace(/[^0-9]/g, ""));
+    const productUrl = result.url?.startsWith("http")
+      ? result.url
+      : `https://www.flipkart.com/search?q=${encodeURIComponent(cleanQuery)}`;
+
+    return {
+      title: result.title,
+      currentPrice: cleanedPrice,
+      image: result.image,
+      site: "flipkart",
+      url: productUrl
+    };
+  } catch (error) {
+    console.log("SEARCH FLIPKART ERROR:", error);
+    return null; 
+  } finally {
+    await browser.close();
+  }
+};
+
+const searchAmazon = async (query) => {
+  const browser = await puppeteer.launch({ headless: true });
+  try {
+    const page = await browser.newPage();
+    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+    
+    const cleanQuery = query.split("-")[0].substring(0, 50).trim();
+    const url = `https://www.amazon.in/s?k=${encodeURIComponent(cleanQuery)}`;
+    
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    
+    const result = await page.evaluate(() => {
+      const firstResult = document.querySelector('div[data-component-type="s-search-result"]');
+      if (!firstResult) return null;
+
+      const titleEl = firstResult.querySelector('h2 a span');
+      const title = titleEl ? titleEl.innerText : "Amazon Product";
+
+      const linkEl = firstResult.querySelector('h2 a');
+      const url = linkEl ? linkEl.href : null;
+
+      const priceEl = firstResult.querySelector('.a-price-whole');
+      const priceText = priceEl ? priceEl.innerText : null;
+
+      const imgEl = firstResult.querySelector('.s-image');
+      const image = imgEl ? imgEl.src : null;
+
+      return { title, priceText, url, image };
+    });
+
+    if (!result || !result.priceText) throw new Error("Could not find product on Amazon");
+
+    const cleanedPrice = Number(result.priceText.replace(/[^0-9]/g, ""));
+    const productUrl = result.url?.startsWith("http")
+      ? result.url
+      : result.url
+        ? `https://www.amazon.in${result.url}`
+        : `https://www.amazon.in/s?k=${encodeURIComponent(cleanQuery)}`;
+
+    return {
+      title: result.title,
+      currentPrice: cleanedPrice,
+      image: result.image,
+      site: "amazon",
+      url: productUrl
+    };
+  } catch (error) {
+    console.log("SEARCH AMAZON ERROR:", error);
+    return null;
+  } finally {
+    await browser.close();
+  }
+};
