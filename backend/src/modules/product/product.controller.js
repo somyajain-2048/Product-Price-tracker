@@ -97,7 +97,7 @@ export const toggleFavorite = async (req, res) => {
   }
 };
 
-import { searchProduct } from "../../services/scraper.service.js";
+import { searchProduct, searchAllSites } from "../../services/scrapers/index.js";
 
 export const compareProduct = async (req, res) => {
   try {
@@ -106,8 +106,16 @@ export const compareProduct = async (req, res) => {
       return res.status(400).json({ error: "Missing query or targetSite" });
     }
 
+    // "all" — used by Myntra and any product wanting cross-site comparison
+    if (targetSite === "all") {
+      const results = await searchAllSites(query);
+      if (!results.length) {
+        return res.status(404).json({ error: "Could not find product on any platform" });
+      }
+      return res.status(200).json(results);
+    }
+
     const competitorProduct = await searchProduct(query, targetSite);
-    
     if (!competitorProduct) {
       return res.status(404).json({ error: `Could not find product on ${targetSite}` });
     }

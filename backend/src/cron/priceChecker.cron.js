@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import Product from "../modules/product/product.model.js";
 import User from "../modules/auth/auth.model.js";
-import { scrapeProduct } from "../services/scraper.service.js";
+import { scrapeProduct } from "../services/scrapers/index.js";
 import { sendPriceDropEmail } from "../services/notifications/email.service.js";
 
 const startPriceChecker = () => {

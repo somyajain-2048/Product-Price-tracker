@@ -138,7 +138,7 @@ export const FAQS = [
   },
   {
     q: "Which e-commerce platforms are supported?",
-    a: "Currently we support Amazon India and Flipkart. We're actively working to add Myntra, Snapdeal, Meesho, and more major Indian platforms in the coming months.",
+    a: "Currently we support Amazon India, Flipkart, and Myntra. We're actively working to add Snapdeal and more major Indian platforms in the coming months.",
   },
   {
     q: "How will I be notified about price drops?",

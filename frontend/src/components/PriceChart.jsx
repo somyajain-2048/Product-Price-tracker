@@ -38,9 +38,11 @@ export default function PriceChart({ history, currentPrice, lowestPrice }) {
   if (!history?.length) return null;
 
   const data = history.map((item) => ({
-    date: new Date(item.date).toLocaleDateString("en-IN", {
+    date: new Date(item.date).toLocaleString("en-IN", {
       day: "numeric",
       month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
     }),
     price: item.price,
   }));

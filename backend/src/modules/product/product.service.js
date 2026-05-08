@@ -1,5 +1,5 @@
 // import Product from "./product.model.js";
-// import { scrapeProduct } from "../../services/scraper.service.js";
+// import { scrapeProduct } from "../../services/scrapers/index.js";
 
 // export const addProductService = async (userId, data) => {
 //   const product = await Product.create({
@@ -35,7 +35,7 @@
 // };
 
 import Product from "./product.model.js";
-import { scrapeProduct } from "../../services/scraper.service.js";
+import { scrapeProduct } from "../../services/scrapers/index.js";
 
 // ==========================
 // ADD PRODUCT

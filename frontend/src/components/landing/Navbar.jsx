@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { NAV_LINKS } from "../../constants/landing";
 
+const isLoggedIn = () => !!localStorage.getItem("token");
+
 const Logo = () => (
   <a href="#" className="flex items-center gap-2 group">
     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-200 group-hover:scale-105 transition-transform">
@@ -39,18 +41,29 @@ export default function Navbar() {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              to="/login"
-              className="text-sm font-light text-gray-600 hover:text-indigo-600 transition-colors px-4 py-2"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/signup"
-              className="text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-xl shadow-md shadow-indigo-200 hover:shadow-indigo-300 transition-all"
-            >
-              Get started
-            </Link>
+            {isLoggedIn() ? (
+              <Link
+                to="/dashboard"
+                className="text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-xl shadow-md shadow-indigo-200 hover:shadow-indigo-300 transition-all"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-sm font-light text-gray-600 hover:text-indigo-600 transition-colors px-4 py-2"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-xl shadow-md shadow-indigo-200 hover:shadow-indigo-300 transition-all"
+                >
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -85,18 +98,29 @@ export default function Navbar() {
               </a>
             ))}
             <div className="pt-3 flex flex-col gap-2">
-              <Link
-                to="/login"
-                className="text-center text-sm font-light text-gray-600 border border-gray-200 rounded-xl py-2.5 hover:border-indigo-300 transition-colors"
-              >
-                Log in
-              </Link>
-              <Link
-                to="/signup"
-                className="text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl py-2.5"
-              >
-                Get started
-              </Link>
+              {isLoggedIn() ? (
+                <Link
+                  to="/dashboard"
+                  className="text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl py-2.5"
+                >
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-center text-sm font-light text-gray-600 border border-gray-200 rounded-xl py-2.5 hover:border-indigo-300 transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl py-2.5"
+                  >
+                    Get started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

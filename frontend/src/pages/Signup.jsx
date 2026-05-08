@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
@@ -70,6 +70,9 @@ function BrandPanel() {
 /* ── Signup page ─────────────────────────────────────────── */
 export default function Signup() {
   const navigate = useNavigate();
+  useEffect(() => {
+    if (localStorage.getItem("token")) navigate("/dashboard", { replace: true });
+  }, []);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");

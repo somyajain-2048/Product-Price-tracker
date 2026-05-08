@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors  from "cors";
 import routes from "./routes/index.js";
 import authMiddleware from "./middleware/auth.middleware.js";
-import { scrapeProduct } from "./services/scraper.service.js";
+import { scrapeProduct } from "./services/scrapers/index.js";
 
 dotenv.config();
 const app= express();

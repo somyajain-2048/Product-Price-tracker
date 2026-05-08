@@ -38,7 +38,6 @@ const productSchema = new mongoose.Schema(
 
     site: {
       type: String,
-      enum: ["amazon", "flipkart", "myntra", "meesho"],
       required: true,
     },
 
