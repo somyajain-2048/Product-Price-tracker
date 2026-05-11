@@ -6,6 +6,8 @@ import Sidebar from "../components/dashboard/Sidebar";
 import OverviewSection from "../components/dashboard/OverviewSection";
 import WishlistSection from "../components/dashboard/WishlistSection";
 import SearchSection from "../components/dashboard/SearchSection";
+import ExtensionSection from "../components/dashboard/ExtensionSection";
+import { useSocket } from "../context/SocketContext";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("overview");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const socket = useSocket();
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
@@ -41,6 +44,24 @@ export default function Dashboard() {
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [fetchProducts]);
+
+  useEffect(() => {
+    if (socket) {
+      const handlePriceDrop = (data) => {
+        const { productTitle, oldPrice, newPrice } = data;
+        const shortTitle = productTitle.length > 40 ? productTitle.substring(0, 40) + "..." : productTitle;
+        showToast(`Price dropped! ${shortTitle} (₹${oldPrice} → ₹${newPrice})`, "success");
+        // Re-fetch products to reflect the new price visually
+        fetchProducts();
+      };
+
+      socket.on("price_drop", handlePriceDrop);
+
+      return () => {
+        socket.off("price_drop", handlePriceDrop);
+      };
+    }
+  }, [socket, fetchProducts]);
 
   const deleteProduct = async (id) => {
     try {
@@ -98,6 +119,7 @@ export default function Dashboard() {
               {activeSection === "overview" && `${products.length} products tracked`}
               {activeSection === "wishlist" && `${counts.wishlist} saved items`}
               {activeSection === "search" && "Find your products"}
+              {activeSection === "extension" && "How to use our browser extension"}
             </p>
           </div>
           <Link to="/" className="text-xs text-gray-400 hover:text-indigo-600 transition-colors">← Back to site</Link>
@@ -112,6 +134,9 @@ export default function Dashboard() {
           )}
           {activeSection === "search" && (
             <SearchSection onFavorite={toggleFavorite} onDelete={deleteProduct} onNavigate={handleNavigate} />
+          )}
+          {activeSection === "extension" && (
+            <ExtensionSection />
           )}
         </div>
       </main>

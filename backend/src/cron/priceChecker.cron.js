@@ -4,7 +4,7 @@ import User from "../modules/auth/auth.model.js";
 import { scrapeProduct } from "../services/scrapers/index.js";
 import { sendPriceDropEmail } from "../services/notifications/email.service.js";
 
-const startPriceChecker = () => {
+const startPriceChecker = (io) => {
   // Runs every 2 hours
   cron.schedule("0 */2 * * *", async () => {
     console.log(`[${new Date().toISOString()}] Price checker started`);
@@ -33,6 +33,17 @@ const startPriceChecker = () => {
               await sendPriceDropEmail({
                 to: user.email,
                 userName: user.name,
+                productTitle: product.title,
+                oldPrice,
+                newPrice,
+                productUrl: product.url,
+                productImage: product.image,
+              });
+            }
+
+            // Emit real-time socket event if io is provided
+            if (io && user?._id) {
+              io.to(`user_${user._id.toString()}`).emit("price_drop", {
                 productTitle: product.title,
                 oldPrice,
                 newPrice,

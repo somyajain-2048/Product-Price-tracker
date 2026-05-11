@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://e-com-product-price-tracking.onrender.com/api",
+  baseURL: "http://localhost:5000/api",
 });
 
 
@@ -23,3 +23,6 @@ api.interceptors.request.use(
 );
 
 export default api;
+
+
+//https://e-com-product-price-tracking.onrender.com
