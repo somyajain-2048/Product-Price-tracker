@@ -16,15 +16,47 @@ export default function WishlistSection({ products, loading, onFavorite, onDelet
 
       {!loading && wishlist.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <StatCard icon="❤️" label="Saved Items" value={wishlist.length} sub="in your wishlist" accent="violet" />
-          <StatCard icon="🎉" label="At Lowest Price" value={lowestInWishlist.length} sub="great time to buy" accent="emerald" />
+          <StatCard
+            index={0}
+            accent="violet"
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            }
+            label="Saved Items"
+            value={wishlist.length}
+            sub="in your wishlist"
+          />
+          <StatCard
+            index={1}
+            accent="emerald"
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+              </svg>
+            }
+            label="At Lowest Price"
+            value={lowestInWishlist.length}
+            sub="great time to buy"
+          />
         </div>
       )}
+
 
       {loading ? (
         <CardSkeleton count={4} />
       ) : wishlist.length === 0 ? (
-        <EmptyState icon="❤️" title="Your wishlist is empty" desc="Click the heart icon on any product card to add it to your wishlist." />
+        <EmptyState
+          icon={
+            <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          }
+          title="Your wishlist is empty"
+          desc="Click the heart icon on any product card to add it to your wishlist."
+        />
+
       ) : (
         <>
           {lowestInWishlist.length > 0 && (

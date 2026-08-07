@@ -101,7 +101,6 @@ const DealCard = ({ deal, product, cheapestPrice }) => {
 const CompetitorDeal = ({ product }) => {
   const [deals, setDeals] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   // Single-site comparison for Amazon/Flipkart, all-platform for others
   const isAllPlatforms = product.site !== 'amazon' && product.site !== 'flipkart';
@@ -109,7 +108,6 @@ const CompetitorDeal = ({ product }) => {
 
   const fetchCompetitorDeal = async () => {
     setLoading(true);
-    setError(null);
     try {
       const targetSite = isAllPlatforms ? 'all' : singleTarget;
       const res = await api.post('/products/compare', { query: product.title, targetSite });
@@ -118,12 +116,15 @@ const CompetitorDeal = ({ product }) => {
       const raw = Array.isArray(res.data) ? res.data : [res.data];
       const filtered = raw.filter(d => d && d.site !== product.site);
 
-      if (!filtered.length) throw new Error("No results found");
+      if (!filtered.length) {
+        setDeals([]);
+        return;
+      }
       // Sort cheapest first
       filtered.sort((a, b) => a.currentPrice - b.currentPrice);
       setDeals(filtered);
     } catch {
-      setError("Couldn't find a matching product on competitor sites.");
+      setDeals([]);
     } finally {
       setLoading(false);
     }
@@ -140,17 +141,28 @@ const CompetitorDeal = ({ product }) => {
     );
   }
 
-  if (error) {
+  if (deals !== null && deals.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-14 gap-3 text-center">
-        <div className="w-10 h-10 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center">
-          <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <div className="flex flex-col items-center justify-center py-12 px-4 gap-3 text-center bg-gray-50/70 rounded-2xl border border-gray-150">
+        <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
+          <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <p className="text-sm text-gray-500 font-light">{error}</p>
-        <button onClick={fetchCompetitorDeal} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium underline transition-colors">
-          Try again
+        <div>
+          <h3 className="text-sm font-medium text-gray-800 mb-1">Product is not found on other websites</h3>
+          <p className="text-xs text-gray-400 font-light max-w-sm">
+            We searched competitor platforms, but could not find a matching product on other websites.
+          </p>
+        </div>
+        <button
+          onClick={fetchCompetitorDeal}
+          className="mt-1 inline-flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Try searching again
         </button>
       </div>
     );
@@ -195,5 +207,6 @@ const CompetitorDeal = ({ product }) => {
     </div>
   );
 };
+
 
 export default CompetitorDeal;

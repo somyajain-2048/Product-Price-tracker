@@ -1,98 +1,104 @@
-# 🛍️ PriceTrack - E-Commerce Price Tracker
+# 🛍️ PriceTrack — E-Commerce Price Intelligence & Tracking Platform
 
-PriceTrack is a comprehensive price tracking application that allows users to monitor the prices of their favorite products across popular e-commerce platforms like **Amazon, Flipkart, and Myntra**. 
+PriceTrack is a full-stack e-commerce price monitoring and intelligence platform that enables shoppers to track product prices across major e-commerce platforms including **Amazon India** and **Flipkart**.
 
-With automated price checks, real-time push notifications, email alerts, and a companion browser extension, you'll never miss a price drop again!
-
----
-
-## ✨ Features
-
-- **📊 Modern Dashboard**: A sleek, responsive dashboard built with React and Tailwind CSS.
-- **🔄 Automated Price Checking**: A built-in Node.js cron job automatically scrapes and updates product prices every 2 hours using Puppeteer.
-- **⚡ Real-Time Updates**: Integrated Socket.IO pushes instant price drop notifications directly to the frontend without requiring a page refresh.
-- **📧 Email Alerts**: Get notified via email the moment a product you're tracking drops in price.
-- **🧩 Browser Extension**: A custom Chrome extension that injects a "Track this Product" button directly into Amazon, Flipkart, and Myntra product pages for one-click tracking.
-- **❤️ Wishlist Management**: Save and organize your favorite products.
+Featuring **24/7 automated price monitoring**, **cross-platform competitor price comparisons**, **real-time WebSocket updates**, **Nodemailer email alerts**, and a **Manifest V3 Chrome Extension**, PriceTrack ensures users never miss a price drop.
 
 ---
 
-## 🏗️ Tech Stack
+## 📁 Clean Directory Structure
 
-### Frontend
-- **Framework**: React 19 + Vite
-- **Styling**: Tailwind CSS
-- **Routing**: React Router DOM
-- **Real-Time**: Socket.IO Client
-- **Charts**: Recharts
-
-### Backend
-- **Framework**: Node.js + Express
-- **Database**: MongoDB (Mongoose)
-- **Scraping**: Puppeteer
-- **Real-Time**: Socket.IO Server
-- **Scheduling**: Node-cron
-- **Emails**: Nodemailer
-- **Authentication**: JWT & bcryptjs
-
-### Extension
-- Vanilla JavaScript, HTML, CSS (Manifest V3)
-
----
-
-## 🚀 Getting Started
-
-### 1. Clone the repository
-```bash
-git clone <repository-url>
-cd Product_Price-Tracker
+```text
+Product_Price-Tracker/
+├── backend/                        # Express.js REST API, Socket.IO & Web Scrapers
+│   ├── src/
+│   │   ├── cron/                   # Automated node-cron price monitoring
+│   │   ├── middleware/             # JWT auth & error interceptors
+│   │   ├── modules/                # Auth, Products & Search controllers/services
+│   │   ├── services/               # Puppeteer, Cheerio & Nodemailer transport
+│   │   └── socket.js               # Socket.IO real-time private user rooms
+├── extension/                      # Chrome Extension (Manifest V3)
+│   ├── inject.js                   # Content script for 1-click DOM tracking
+│   ├── background.js               # Background service worker API transport
+│   └── popup.html / popup.js       # Popup extension interface
+├── frontend/                       # React 18 + Vite + Tailwind CSS SPA
+│   ├── src/
+│   │   ├── components/             # Dashboard, Landing, Modals & UI Components
+│   │   ├── context/                # Auth & SocketContext providers
+│   │   ├── pages/                  # Dashboard, Login, Signup & Legal pages
+│   │   └── utils/                  # Price intelligence & AI trend analysis
+├── PROJECT_REPORT.md               # Technical Architecture & Interview Guide
+├── PriceTrack_Project_Report.pdf   # Printable Technical Architecture PDF Report
+└── README.md                       # Project Guide & Documentation
 ```
 
-### 2. Backend Setup
+---
+
+## ✨ Core Features
+
+- **📊 Modern Dashboard**: Sleek, responsive interface built with React 18, Tailwind CSS, and glassmorphism styling.
+- **🔄 Automated Price Checking**: Built-in 2-hour node-cron background monitor scrapes prices via Puppeteer & Cheerio.
+- **⚡ Real-Time WebSocket Alerts**: Socket.IO broadcasts live price drop notifications to active web clients without page reloads.
+- **📧 Email Notifications**: Nodemailer dispatches HTML alert emails when products hit target prices.
+- **🧩 Manifest V3 Chrome Extension**: Injects 1-click "Track Price" button directly onto Amazon and Flipkart product pages.
+- **⚖️ Competitor Deal Comparison**: Automatically discovers and displays live competitor listings side by side.
+- **📈 AI Price Intelligence**: Linear price trend analysis advises users whether to *Buy Now*, *Wait*, or *Good Deal*.
+
+---
+
+## 🏗️ Technology Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 18, Vite, Tailwind CSS, React Router v6, Axios, Socket.IO Client |
+| **Backend** | Node.js, Express.js, MongoDB, Mongoose, JWT, Socket.IO, Puppeteer, Cheerio, node-cron, Nodemailer |
+| **Extension** | Chrome Extension Manifest V3 (JavaScript, Content Scripts, Service Worker) |
+
+---
+
+## 🚀 Quick Setup Guide
+
+### 1. Clone & Install Backend
 ```bash
 cd backend
 npm install
 ```
-Create a `.env` file in the `backend` directory with the following variables:
+
+Create a `.env` file inside `backend/`:
 ```env
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-EMAIL_USER=your_email@gmail.com
+MONGO_URI=mongodb://localhost:27017/price-tracker
+JWT_SECRET=pricetrack_super_secret_jwt_key_2026
+EMAIL_USER=support@pricetrack.in
 EMAIL_PASS=your_gmail_app_password
 ```
-Start the backend server:
+
+Start backend dev server (Port 5000):
 ```bash
 npm run dev
 ```
 
-### 3. Frontend Setup
-Open a new terminal window:
+### 2. Frontend Setup
+In a new terminal:
 ```bash
 cd frontend
 npm install
-```
-*(The frontend is preconfigured to communicate with the backend at `http://localhost:5000/api`)*
-
-Start the frontend server:
-```bash
 npm run dev
 ```
+Open `http://localhost:5173` in your browser.
 
-### 4. Extension Setup
-1. Open Google Chrome and navigate to `chrome://extensions/`.
-2. Toggle **Developer Mode** on (top right corner).
-3. Click **Load unpacked** (top left).
-4. Select the `extension` folder located inside the `Product_Price-Tracker` project directory.
-5. Log in to the frontend dashboard. The extension will automatically sync your session token and allow you to track products!
+### 3. Chrome Extension Setup
+1. Open Chrome and navigate to `chrome://extensions/`.
+2. Enable **Developer Mode** (top right toggle).
+3. Click **Load unpacked** and select the `extension` folder.
 
 ---
 
-## 📸 Usage
+## 📄 Technical Reports & Interview Q&A
 
-1. **Dashboard**: Navigate to `http://localhost:5173` to view your tracked products, wishlists, and recent price drops.
-2. **Adding Products (Manual)**: Paste a supported product URL directly into the dashboard.
-3. **Adding Products (Extension)**: Visit an Amazon, Flipkart, or Myntra product page. Click the injected "Track this Product" button or use the extension popup to instantly add it to your dashboard.
+- 📑 **Markdown Report**: [PROJECT_REPORT.md](file:///c:/Users/91860/Desktop/Projects/Product_price/Product_Price-Tracker/PROJECT_REPORT.md)
+- 📄 **PDF Report**: [PriceTrack_Project_Report.pdf](file:///c:/Users/91860/Desktop/Projects/Product_price/Product_Price-Tracker/PriceTrack_Project_Report.pdf)
+- 🌐 **Browser PDF View**: [http://localhost:5000/report](http://localhost:5000/report)
 
 ---
 

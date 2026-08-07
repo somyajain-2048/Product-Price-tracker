@@ -19,7 +19,8 @@ export const initSocket = (httpServer) => {
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const jwtSecret = process.env.JWT_SECRET || "asdfghjkl12345";
+      const decoded = jwt.verify(token, jwtSecret);
       socket.user = decoded;
       next();
     } catch (err) {

@@ -62,6 +62,16 @@ const startPriceChecker = (io) => {
           product.priceHistory.push({ price: newPrice });
 
           await product.save();
+
+          // Emit general price update event to socket client
+          if (io && product.userId) {
+            io.to(`user_${product.userId.toString()}`).emit("price_updated", {
+              productId: product._id,
+              currentPrice: newPrice,
+              lowestPrice: product.lowestPrice,
+            });
+          }
+
         } catch (err) {
           console.error(`[PriceCheck] Failed for "${product.title}":`, err.message);
         }

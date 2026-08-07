@@ -121,7 +121,13 @@ export const refreshProductPriceService = async (productId, userId) => {
   if (!product.lowestPrice || newPrice < product.lowestPrice) {
     product.lowestPrice = newPrice;
   }
-  product.priceHistory.push({ price: newPrice, date: new Date() });
+
+  // Only add a new history entry if the price actually changed
+  const lastHistoryEntry = product.priceHistory[product.priceHistory.length - 1];
+  if (!lastHistoryEntry || lastHistoryEntry.price !== newPrice) {
+    product.priceHistory.push({ price: newPrice, date: new Date() });
+  }
+
   await product.save();
 
   return product;

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { analyzePriceTrend, predictBestTimeToBuy } from "../utils/priceIntelligence";
 import api from "../api/axios";
+import { useSocket } from "../context/SocketContext";
 import Toast from "../components/Toast";
 import TopNav from "../components/product/TopNav";
 import ProductHero from "../components/product/ProductHero";
@@ -22,6 +23,15 @@ export default function ProductDetails() {
 
   const showToast = useCallback((message, type = "success") => setToast({ message, type }), []);
 
+  const socket = useSocket();
+
+  useEffect(() => {
+    if (product?.title) {
+      document.title = `${product.title} — Price History & Tracker | PriceTrack`;
+    }
+  }, [product]);
+
+
   useEffect(() => {
     if (!id) { navigate("/dashboard"); return; }
     let isMounted = true;
@@ -38,17 +48,49 @@ export default function ProductDetails() {
     };
     fetchFresh();
 
-    const intervalId = setInterval(async () => {
-      try {
-        const res = await api.post(`/products/${id}/refresh`);
-        if (isMounted) { setProduct(res.data); setIsFavorite(res.data.isFavorite); }
-      } catch (err) {
-        console.error("Auto-refresh failed", err);
-      }
-    }, 60000);
+    // Auto-refresh product details every 30 seconds
+    const intervalId = setInterval(() => {
+      fetchFresh();
+    }, 30000);
 
-    return () => { isMounted = false; clearInterval(intervalId); };
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
   }, [id, navigate, product]);
+
+  // Listen for real-time price drops & updates from the backend cron job
+  useEffect(() => {
+    if (!socket) return;
+
+    const handlePriceDrop = (data) => {
+      if (product && data.productUrl === product.url) {
+        showToast(`Price dropped to ₹${data.newPrice}! Refreshing...`, "success");
+        api.get(`/products/${id}`).then((res) => {
+          setProduct(res.data);
+          setIsFavorite(res.data.isFavorite);
+        }).catch(console.error);
+      }
+    };
+
+    const handlePriceUpdate = (data) => {
+      if (product && (data.productId === id || data.productUrl === product.url)) {
+        api.get(`/products/${id}`).then((res) => {
+          setProduct(res.data);
+          setIsFavorite(res.data.isFavorite);
+        }).catch(console.error);
+      }
+    };
+
+    socket.on("price_drop", handlePriceDrop);
+    socket.on("price_updated", handlePriceUpdate);
+
+    return () => {
+      socket.off("price_drop", handlePriceDrop);
+      socket.off("price_updated", handlePriceUpdate);
+    };
+  }, [socket, product, id, showToast]);
+
 
   const handleRefreshPrice = async () => {
     setRefreshing(true);

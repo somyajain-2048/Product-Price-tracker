@@ -7,9 +7,12 @@ import OverviewSection from "../components/dashboard/OverviewSection";
 import WishlistSection from "../components/dashboard/WishlistSection";
 import SearchSection from "../components/dashboard/SearchSection";
 import ExtensionSection from "../components/dashboard/ExtensionSection";
+import ProfileDropdown from "../components/ProfileDropdown";
 import { useSocket } from "../context/SocketContext";
 
 export default function Dashboard() {
+
+
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +27,10 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    document.title = "Dashboard | PriceTrack";
     if (!localStorage.getItem("token")) navigate("/login");
-  }, []);
+  }, [navigate]);
+
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -42,7 +47,16 @@ export default function Dashboard() {
     fetchProducts();
     const onFocus = () => fetchProducts();
     window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
+
+    // Auto-refresh prices periodically in the background every 30 seconds
+    const intervalId = setInterval(() => {
+      fetchProducts();
+    }, 30000);
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      clearInterval(intervalId);
+    };
   }, [fetchProducts]);
 
   useEffect(() => {
@@ -51,17 +65,23 @@ export default function Dashboard() {
         const { productTitle, oldPrice, newPrice } = data;
         const shortTitle = productTitle.length > 40 ? productTitle.substring(0, 40) + "..." : productTitle;
         showToast(`Price dropped! ${shortTitle} (₹${oldPrice} → ₹${newPrice})`, "success");
-        // Re-fetch products to reflect the new price visually
+        fetchProducts();
+      };
+
+      const handlePriceUpdate = () => {
         fetchProducts();
       };
 
       socket.on("price_drop", handlePriceDrop);
+      socket.on("price_updated", handlePriceUpdate);
 
       return () => {
         socket.off("price_drop", handlePriceDrop);
+        socket.off("price_updated", handlePriceUpdate);
       };
     }
   }, [socket, fetchProducts]);
+
 
   const deleteProduct = async (id) => {
     try {
@@ -122,8 +142,12 @@ export default function Dashboard() {
               {activeSection === "extension" && "How to use our browser extension"}
             </p>
           </div>
-          <Link to="/" className="text-xs text-gray-400 hover:text-indigo-600 transition-colors">← Back to site</Link>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="text-xs text-gray-400 hover:text-indigo-600 transition-colors">← Back to site</Link>
+            <ProfileDropdown />
+          </div>
         </div>
+
 
         <div className="p-6 max-w-6xl">
           {activeSection === "overview" && (

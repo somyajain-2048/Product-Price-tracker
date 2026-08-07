@@ -14,6 +14,7 @@ export const SocketProvider = ({ children }) => {
     const token = localStorage.getItem("token");
 
     if (!token) {
+      setSocket(null);
       return;
     }
 
@@ -32,14 +33,20 @@ export const SocketProvider = ({ children }) => {
 
     socketInstance.on("connect_error", (err) => {
       console.error("Socket connection error:", err.message);
+      if (err.message && err.message.includes("Authentication error")) {
+        socketInstance.disconnect();
+        setSocket(null);
+        localStorage.removeItem("token");
+        if (window.location.pathname !== "/login" && window.location.pathname !== "/signup") {
+          window.location.href = "/login";
+        }
+      }
     });
 
     return () => {
       socketInstance.disconnect();
     };
-  }, []); // We might want to re-run this if the token changes (e.g. login/logout)
-          // For now, it will connect when the app loads if token is present.
-          // In a full implementation, you'd track auth state changes.
+  }, []);
 
   return (
     <SocketContext.Provider value={socket}>
@@ -47,3 +54,4 @@ export const SocketProvider = ({ children }) => {
     </SocketContext.Provider>
   );
 };
+

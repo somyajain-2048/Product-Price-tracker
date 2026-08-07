@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Navbar from "../components/landing/Navbar";
 import HeroSection from "../components/landing/HeroSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
@@ -7,6 +8,10 @@ import CTABanner from "../components/landing/CTABanner";
 import Footer from "../components/landing/Footer";
 
 export default function LandingPage() {
+  useEffect(() => {
+    document.title = "PriceTrack — Real-Time Price Tracker for Amazon & Flipkart";
+  }, []);
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -19,3 +24,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

@@ -5,9 +5,30 @@ import api from "../api/axios";
 /* ── Shared left panel ───────────────────────────────────── */
 function BrandPanel() {
   const highlights = [
-    { icon: "📉", text: "Track price drops across Amazon & Flipkart in real time." },
-    { icon: "🔔", text: "Get an email alert the moment a price hits your target." },
-    { icon: "📊", text: "Browse 90-day price history before you click Buy." },
+    {
+      icon: (
+        <svg className="w-4 h-4 text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+        </svg>
+      ),
+      text: "Track price drops across Amazon & Flipkart in real time.",
+    },
+    {
+      icon: (
+        <svg className="w-4 h-4 text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+      ),
+      text: "Get an email alert the moment a price hits your target.",
+    },
+    {
+      icon: (
+        <svg className="w-4 h-4 text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      text: "Browse 90-day price history before you click Buy.",
+    },
   ];
 
   return (
@@ -38,12 +59,15 @@ function BrandPanel() {
         <div className="space-y-4">
           {highlights.map((h, i) => (
             <div key={i} className="flex items-start gap-3">
-              <span className="text-lg leading-none mt-0.5">{h.icon}</span>
-              <p className="text-white/60 text-sm font-light leading-relaxed">{h.text}</p>
+              <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                {h.icon}
+              </div>
+              <p className="text-white/70 text-sm font-light leading-relaxed pt-0.5">{h.text}</p>
             </div>
           ))}
         </div>
       </div>
+
 
       {/* Bottom stat strip */}
       <div className="grid grid-cols-3 gap-3">
@@ -62,8 +86,10 @@ function BrandPanel() {
 export default function Login() {
   const navigate = useNavigate();
   useEffect(() => {
-    if (localStorage.getItem("token")) navigate("/dashboard", { replace: true });
+    document.title = "Sign In | PriceTrack";
   }, []);
+
+
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");

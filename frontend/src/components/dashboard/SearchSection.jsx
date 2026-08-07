@@ -110,10 +110,15 @@ export default function SearchSection({ onFavorite, onDelete, onNavigate }) {
           <CardSkeleton count={6} />
         ) : results.length === 0 ? (
           <EmptyState
-            icon="🔍"
+            icon={
+              <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            }
             title={searchTerm ? "No matching products" : "No products yet"}
             desc={searchTerm ? `No products match "${searchTerm}". Try a different keyword.` : "Add products to track from the Overview tab."}
           />
+
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

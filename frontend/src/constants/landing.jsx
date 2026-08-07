@@ -12,10 +12,47 @@ export const STATS = [
 ];
 
 export const MOCK_PRODUCTS = [
-  { name: "Sony WH-1000XM5", emoji: "🎧", site: "amazon", current: "₹24,990", original: "₹34,990", drop: "29%", trend: "down" },
-  { name: "Samsung Galaxy S24", emoji: "📱", site: "flipkart", current: "₹61,999", original: "₹79,999", drop: "22%", trend: "down" },
-  { name: "Apple iPad 10th Gen", emoji: "📟", site: "amazon", current: "₹44,900", original: "₹44,900", drop: "0%", trend: "stable" },
+  {
+    name: "Sony WH-1000XM5",
+    site: "amazon",
+    current: "₹24,990",
+    original: "₹34,990",
+    drop: "29%",
+    trend: "down",
+    icon: (
+      <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Samsung Galaxy S24",
+    site: "flipkart",
+    current: "₹61,999",
+    original: "₹79,999",
+    drop: "22%",
+    trend: "down",
+    icon: (
+      <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Apple iPad 10th Gen",
+    site: "amazon",
+    current: "₹44,900",
+    original: "₹44,900",
+    drop: "0%",
+    trend: "stable",
+    icon: (
+      <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
 ];
+
 
 export const FEATURES = [
   {
@@ -76,60 +113,86 @@ export const FEATURES = [
 
 export const CATEGORIES = [
   {
-    emoji: "💻",
     name: "Electronics",
     count: "12,400+ products",
-    color: "from-blue-500 to-indigo-600",
     badge: "Up to 40% off",
     example: "MacBook Air M2",
     drop: "↓ 18%",
+    desc: "Track laptops, smartphones & gadgets in real-time.",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
   },
   {
-    emoji: "👗",
     name: "Fashion",
     count: "8,700+ products",
-    color: "from-pink-500 to-rose-500",
     badge: "Seasonal deals",
     example: "Nike Air Max 270",
     drop: "↓ 25%",
+    desc: "Monitor apparel, footwear & accessories across top stores.",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
+    ),
   },
   {
-    emoji: "🏠",
     name: "Home & Kitchen",
     count: "6,200+ products",
-    color: "from-amber-500 to-orange-500",
     badge: "Festival offers",
     example: "Dyson V15 Vacuum",
     drop: "↓ 22%",
+    desc: "Get alerts for home appliances & smart home gear.",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
   },
   {
-    emoji: "📚",
-    name: "Books",
+    name: "Books & Learning",
     count: "20,000+ products",
-    color: "from-emerald-500 to-teal-600",
     badge: "Best value",
     example: "Atomic Habits",
     drop: "↓ 35%",
+    desc: "Find discount deals on bestsellers & textbooks.",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    ),
   },
   {
-    emoji: "🎮",
-    name: "Gaming",
+    name: "Gaming & Tech",
     count: "3,500+ products",
-    color: "from-violet-500 to-purple-600",
     badge: "Launch deals",
-    example: "PS5 Controller",
+    example: "PS5 DualSense Controller",
     drop: "↓ 12%",
+    desc: "Stay notified on consoles, gaming PCs & accessories.",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5z" />
+      </svg>
+    ),
   },
   {
-    emoji: "🏋️",
     name: "Sports & Fitness",
     count: "5,100+ products",
-    color: "from-cyan-500 to-sky-600",
     badge: "New arrivals",
-    example: "Garmin Forerunner",
+    example: "Garmin Forerunner 255",
     drop: "↓ 20%",
+    desc: "Track fitness wearables & gym equipment price drops.",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    ),
   },
 ];
+
+
 
 export const FAQS = [
   {
@@ -160,26 +223,24 @@ export const FAQS = [
 
 export const FOOTER_LINKS = {
   Product: [
-    { label: "Features", href: "#features" },
-    { label: "Categories", href: "#categories" },
-    { label: "Chrome Extension", href: "#" },
-    { label: "Pricing", href: "#" },
-    { label: "Changelog", href: "#" },
+    { label: "Features", href: "/#features", isInternal: false },
+    { label: "Categories", href: "/#categories", isInternal: false },
+    { label: "Track Products", href: "/dashboard", isInternal: true },
   ],
   Company: [
-    { label: "About Us", href: "#about" },
-    { label: "Blog", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Press", href: "#" },
+    { label: "About Us", href: "/about", isInternal: true },
+    { label: "Sign In", href: "/login", isInternal: true },
+    { label: "Create Account", href: "/signup", isInternal: true },
   ],
   Support: [
-    { label: "FAQ", href: "#faq" },
-    { label: "Contact Us", href: "mailto:support@pricetrack.in" },
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Cookie Policy", href: "#" },
+    { label: "FAQ", href: "/#faq", isInternal: false },
+    { label: "Contact Us", href: "/contact", isInternal: true },
+    { label: "Privacy Policy", href: "/privacy", isInternal: true },
+    { label: "Terms of Service", href: "/terms", isInternal: true },
   ],
 };
+
+
 
 export const SOCIALS = [
   {

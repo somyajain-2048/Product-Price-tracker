@@ -33,9 +33,10 @@ export const loginUser = async(data)=>{
         throw new Error("invalid password")
     }
 
+    const jwtSecret = process.env.JWT_SECRET || "asdfghjkl12345";
     const token = jwt.sign(
         {id:user._id},
-        process.env.JWT_SECRET,
+        jwtSecret,
         {expiresIn:"7d"}
     );
 

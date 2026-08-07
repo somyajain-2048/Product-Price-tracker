@@ -1,11 +1,10 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { NAV_LINKS } from "../../constants/landing";
-
-const isLoggedIn = () => !!localStorage.getItem("token");
+import ProfileDropdown from "../ProfileDropdown";
 
 const Logo = () => (
-  <a href="#" className="flex items-center gap-2 group">
+  <Link to="/" className="flex items-center gap-2 group">
     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-200 group-hover:scale-105 transition-transform">
       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -14,11 +13,25 @@ const Logo = () => (
     <span className="font-display text-lg font-normal tracking-tight bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
       PriceTrack
     </span>
-  </a>
+  </Link>
 );
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState(() => !!localStorage.getItem("token"));
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleStorage = () => setIsAuth(!!localStorage.getItem("token"));
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuth(false);
+    navigate("/login");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
@@ -41,13 +54,16 @@ export default function Navbar() {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
-            {isLoggedIn() ? (
-              <Link
-                to="/dashboard"
-                className="text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-xl shadow-md shadow-indigo-200 hover:shadow-indigo-300 transition-all"
-              >
-                Go to Dashboard
-              </Link>
+            {isAuth ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-xl shadow-md shadow-indigo-200 hover:shadow-indigo-300 transition-all"
+                >
+                  Go to Dashboard
+                </Link>
+                <ProfileDropdown />
+              </>
             ) : (
               <>
                 <Link
@@ -60,7 +76,7 @@ export default function Navbar() {
                   to="/signup"
                   className="text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-xl shadow-md shadow-indigo-200 hover:shadow-indigo-300 transition-all"
                 >
-                  Get started
+                  Create account
                 </Link>
               </>
             )}
@@ -98,26 +114,37 @@ export default function Navbar() {
               </a>
             ))}
             <div className="pt-3 flex flex-col gap-2">
-              {isLoggedIn() ? (
-                <Link
-                  to="/dashboard"
-                  className="text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl py-2.5"
-                >
-                  Go to Dashboard
-                </Link>
+              {isAuth ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl py-2.5"
+                  >
+                    Go to Dashboard
+                  </Link>
+                  <button
+                    onClick={() => { setMenuOpen(false); handleLogout(); }}
+                    className="text-center text-sm font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 rounded-xl py-2.5 transition-colors"
+                  >
+                    Log out
+                  </button>
+                </>
               ) : (
                 <>
                   <Link
                     to="/login"
+                    onClick={() => setMenuOpen(false)}
                     className="text-center text-sm font-light text-gray-600 border border-gray-200 rounded-xl py-2.5 hover:border-indigo-300 transition-colors"
                   >
                     Log in
                   </Link>
                   <Link
                     to="/signup"
+                    onClick={() => setMenuOpen(false)}
                     className="text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl py-2.5"
                   >
-                    Get started
+                    Create account
                   </Link>
                 </>
               )}
@@ -128,3 +155,4 @@ export default function Navbar() {
     </nav>
   );
 }
+
