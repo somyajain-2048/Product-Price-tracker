@@ -52,6 +52,11 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    lastScrapedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true },
 );

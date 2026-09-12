@@ -1,5 +1,5 @@
 import { addProductService, deleteProductService, getProductsService, getProductByIdService, refreshProductPriceService, toggleFavoriteService, searchProductsService } from "./product.service.js";
-
+import { searchProduct, searchAllSites } from "../../services/scrapers/index.js";
 import { productSchemaValidation } from "./product.validation.js";
 
 // export const addProduct = async(req,res)=>{
@@ -97,7 +97,6 @@ export const toggleFavorite = async (req, res) => {
   }
 };
 
-import { searchProduct, searchAllSites } from "../../services/scrapers/index.js";
 
 export const compareProduct = async (req, res) => {
   try {

@@ -39,9 +39,17 @@ export default function ProductDetails() {
     const fetchFresh = async () => {
       try {
         const res = await api.get(`/products/${id}`);
-        if (isMounted) { setProduct(res.data); setIsFavorite(res.data.isFavorite); }
+        if (isMounted && res.data) {
+          setProduct(res.data);
+          setIsFavorite(res.data.isFavorite);
+        }
       } catch {
-        if (!product && isMounted) navigate("/dashboard");
+        if (isMounted) {
+          setProduct((prev) => {
+            if (!prev) navigate("/dashboard");
+            return prev;
+          });
+        }
       } finally {
         if (isMounted) setFetchingFresh(false);
       }
@@ -57,28 +65,37 @@ export default function ProductDetails() {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, [id, navigate, product]);
+  }, [id, navigate]);
 
   // Listen for real-time price drops & updates from the backend cron job
   useEffect(() => {
     if (!socket) return;
 
     const handlePriceDrop = (data) => {
-      if (product && data.productUrl === product.url) {
-        showToast(`Price dropped to ₹${data.newPrice}! Refreshing...`, "success");
-        api.get(`/products/${id}`).then((res) => {
-          setProduct(res.data);
-          setIsFavorite(res.data.isFavorite);
-        }).catch(console.error);
+      if (data.productId === id) {
+        setProduct((prev) => (prev ? {
+          ...prev,
+          currentPrice: data.newPrice,
+          lowestPrice: Math.min(prev.lowestPrice, data.newPrice),
+          lastScrapedAt: new Date(),
+        } : prev));
+        showToast(`Price dropped to ₹${data.newPrice}!`, "success");
       }
     };
 
     const handlePriceUpdate = (data) => {
-      if (product && (data.productId === id || data.productUrl === product.url)) {
-        api.get(`/products/${id}`).then((res) => {
-          setProduct(res.data);
-          setIsFavorite(res.data.isFavorite);
-        }).catch(console.error);
+      if (data.productId === id) {
+        setProduct((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            currentPrice: data.currentPrice,
+            lowestPrice: data.lowestPrice !== undefined ? data.lowestPrice : prev.lowestPrice,
+            priceHistory: data.priceHistory || prev.priceHistory,
+            lastScrapedAt: data.lastScrapedAt || new Date(),
+          };
+        });
+        showToast("Latest price synchronized!", "success");
       }
     };
 
@@ -89,7 +106,7 @@ export default function ProductDetails() {
       socket.off("price_drop", handlePriceDrop);
       socket.off("price_updated", handlePriceUpdate);
     };
-  }, [socket, product, id, showToast]);
+  }, [socket, id, showToast]);
 
 
   const handleRefreshPrice = async () => {
@@ -99,8 +116,9 @@ export default function ProductDetails() {
       setProduct(res.data);
       setIsFavorite(res.data.isFavorite);
       showToast("Price refreshed successfully!");
-    } catch {
-      showToast("Failed to refresh price. Try again.", "error");
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || "Failed to refresh price. Try again.";
+      showToast(errorMsg, "error");
     } finally {
       setRefreshing(false);
     }

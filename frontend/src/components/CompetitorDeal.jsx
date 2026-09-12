@@ -101,18 +101,15 @@ const DealCard = ({ deal, product, cheapestPrice }) => {
 const CompetitorDeal = ({ product }) => {
   const [deals, setDeals] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // Single-site comparison for Amazon/Flipkart, all-platform for others
-  const isAllPlatforms = product.site !== 'amazon' && product.site !== 'flipkart';
-  const singleTarget = product.site === 'amazon' ? 'flipkart' : 'amazon';
+  const [errorText, setErrorText] = useState(null);
 
   const fetchCompetitorDeal = async () => {
     setLoading(true);
+    setErrorText(null);
     try {
-      const targetSite = isAllPlatforms ? 'all' : singleTarget;
-      const res = await api.post('/products/compare', { query: product.title, targetSite });
+      // Search all platforms and filter out the product's current site
+      const res = await api.post('/products/compare', { query: product.title, targetSite: 'all' });
 
-      // Normalize to always an array, excluding current site
       const raw = Array.isArray(res.data) ? res.data : [res.data];
       const filtered = raw.filter(d => d && d.site !== product.site);
 
@@ -123,8 +120,12 @@ const CompetitorDeal = ({ product }) => {
       // Sort cheapest first
       filtered.sort((a, b) => a.currentPrice - b.currentPrice);
       setDeals(filtered);
-    } catch {
+    } catch (err) {
+      console.error("Comparison error:", err);
       setDeals([]);
+      if (err.response?.status !== 404) {
+        setErrorText(err.response?.data?.error || "Unable to retrieve competitor deals right now.");
+      }
     } finally {
       setLoading(false);
     }
@@ -135,7 +136,7 @@ const CompetitorDeal = ({ product }) => {
       <div className="flex flex-col items-center justify-center py-14 gap-3">
         <div className="w-8 h-8 rounded-full border-2 border-indigo-100 border-t-indigo-500 animate-spin" />
         <p className="text-sm text-indigo-400 font-light animate-pulse">
-          {isAllPlatforms ? "Searching all platforms…" : "Searching competitor stores…"}
+          Searching Amazon, Flipkart, Myntra & more for best deals…
         </p>
       </div>
     );
@@ -150,9 +151,11 @@ const CompetitorDeal = ({ product }) => {
           </svg>
         </div>
         <div>
-          <h3 className="text-sm font-medium text-gray-800 mb-1">Product is not found on other websites</h3>
+          <h3 className="text-sm font-medium text-gray-800 mb-1">
+            {errorText ? "Could not retrieve competitor prices" : "Product is not found on other websites"}
+          </h3>
           <p className="text-xs text-gray-400 font-light max-w-sm">
-            We searched competitor platforms, but could not find a matching product on other websites.
+            {errorText || "We searched competitor platforms (Amazon, Flipkart, Myntra), but could not find a matching product on other websites."}
           </p>
         </div>
         <button
@@ -179,9 +182,7 @@ const CompetitorDeal = ({ product }) => {
         <div>
           <p className="text-sm text-gray-700 font-light mb-1">Check if there's a better deal elsewhere.</p>
           <p className="text-xs text-gray-400 font-light">
-            {isAllPlatforms
-              ? "We'll compare prices across Amazon, Flipkart, Myntra & more."
-              : `We'll search ${singleTarget.charAt(0).toUpperCase() + singleTarget.slice(1)} for the same product instantly.`}
+            We'll compare prices across Amazon, Flipkart, Myntra & more instantly.
           </p>
         </div>
         <button
@@ -191,7 +192,7 @@ const CompetitorDeal = ({ product }) => {
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          {isAllPlatforms ? "Compare All Platforms" : "Search Competitors"}
+          Compare Across Stores
         </button>
       </div>
     );

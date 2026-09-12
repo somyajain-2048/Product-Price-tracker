@@ -35,7 +35,13 @@
 // };
 
 import Product from "./product.model.js";
+import User from "../auth/auth.model.js";
 import { scrapeProduct } from "../../services/scrapers/index.js";
+import { sendPriceDropEmail } from "../../services/notifications/email.service.js";
+import { getIO } from "../../socket.js";
+
+const AUTO_REFRESH_STALE_MS = 15 * 60 * 1000; // 15 minutes TTL
+const activeRefreshes = new Set();
 
 // ==========================
 // ADD PRODUCT
@@ -60,6 +66,8 @@ export const addProductService = async (userId, url) => {
     url: scrapedData.url,
 
     lowestPrice: scrapedData.currentPrice,
+
+    lastScrapedAt: new Date(),
 
     priceHistory: [
       {
@@ -103,6 +111,29 @@ export const deleteProductService = async (productId, userId) => {
 export const getProductByIdService = async (productId, userId) => {
   const product = await Product.findOne({ _id: productId, userId });
   if (!product) throw new Error("Product not found");
+
+  // On-Demand Stale-While-Revalidate:
+  // If the product was last scraped more than AUTO_REFRESH_STALE_MS ago,
+  // trigger a background scrape and broadcast via Socket.IO when ready.
+  const lastCheck = product.lastScrapedAt || product.updatedAt;
+  const isStale = !lastCheck || Date.now() - new Date(lastCheck).getTime() > AUTO_REFRESH_STALE_MS;
+  const key = productId.toString();
+
+  if (isStale && !activeRefreshes.has(key)) {
+    activeRefreshes.add(key);
+    (async () => {
+      try {
+        console.log(`[AutoRefresh] Product "${product.title?.slice(0, 30)}" is stale. Auto-refreshing in background...`);
+        await refreshProductPriceService(productId, userId);
+        console.log(`[AutoRefresh] Background refresh finished for "${product.title?.slice(0, 30)}".`);
+      } catch (err) {
+        console.warn(`[AutoRefresh] Background auto-refresh failed for ${productId}:`, err.message);
+      } finally {
+        activeRefreshes.delete(key);
+      }
+    })();
+  }
+
   return product;
 };
 
@@ -114,12 +145,26 @@ export const refreshProductPriceService = async (productId, userId) => {
   const product = await Product.findOne({ _id: productId, userId });
   if (!product) throw new Error("Product not found");
 
+  const oldPrice = product.currentPrice;
   const scrapedData = await scrapeProduct(product.url);
+  if (!scrapedData || !scrapedData.currentPrice || isNaN(scrapedData.currentPrice)) {
+    throw new Error("Could not extract a valid price during refresh");
+  }
+
   const newPrice = scrapedData.currentPrice;
 
   product.currentPrice = newPrice;
+  product.lastScrapedAt = new Date();
+
   if (!product.lowestPrice || newPrice < product.lowestPrice) {
     product.lowestPrice = newPrice;
+  }
+
+  if (scrapedData.image && (!product.image || product.image.includes("placeholder"))) {
+    product.image = scrapedData.image;
+  }
+  if (scrapedData.title && (!product.title || product.title === "Amazon Product" || product.title === "Flipkart Product")) {
+    product.title = scrapedData.title;
   }
 
   // Only add a new history entry if the price actually changed
@@ -129,6 +174,50 @@ export const refreshProductPriceService = async (productId, userId) => {
   }
 
   await product.save();
+
+  // Check if price dropped -> send email & emit price_drop event
+  if (newPrice < oldPrice) {
+    try {
+      const user = await User.findById(userId);
+      if (user?.email) {
+        await sendPriceDropEmail({
+          to: user.email,
+          userName: user.name,
+          productTitle: product.title,
+          oldPrice,
+          newPrice,
+          productUrl: product.url,
+          productImage: product.image,
+        });
+      }
+    } catch (mailErr) {
+      console.warn("[AutoRefresh] Email notification failed:", mailErr.message);
+    }
+  }
+
+  // Broadcast real-time update via Socket.IO
+  const io = getIO();
+  if (io && userId) {
+    const userRoom = `user_${userId.toString()}`;
+    if (newPrice < oldPrice) {
+      io.to(userRoom).emit("price_drop", {
+        productId: product._id,
+        productTitle: product.title,
+        oldPrice,
+        newPrice,
+        productUrl: product.url,
+        productImage: product.image,
+      });
+    }
+
+    io.to(userRoom).emit("price_updated", {
+      productId: product._id,
+      currentPrice: newPrice,
+      lowestPrice: product.lowestPrice,
+      priceHistory: product.priceHistory,
+      lastScrapedAt: product.lastScrapedAt,
+    });
+  }
 
   return product;
 };

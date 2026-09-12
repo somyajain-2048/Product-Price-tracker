@@ -36,6 +36,10 @@ export default function ProductHero({
               Lowest ever
             </span>
           )}
+          <span className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-light tracking-wider bg-gray-50 text-gray-500 border border-gray-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Auto-synced
+          </span>
         </div>
 
         <h1 className="font-display text-xl md:text-2xl font-light text-gray-900 leading-snug mb-6">
