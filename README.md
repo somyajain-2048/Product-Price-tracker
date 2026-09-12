@@ -92,15 +92,27 @@ Open `http://localhost:5173` in your browser.
 2. Enable **Developer Mode** (top right toggle).
 3. Click **Load unpacked** and select the `extension` folder.
 
+### 4. Deploying to Render.com
+
+#### Frontend Static Site Settings:
+- **Root Directory**: `frontend`
+- **Build Command**: `npm install && npm run build`
+- **Publish Directory**: `dist` *(Do NOT set to `npm run dev`!)*
+
+#### Backend Web Service Settings:
+- **Root Directory**: `backend`
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+
 ---
 
 ## 📄 Technical Reports & Interview Q&A
 
 - 📑 **Markdown Report**: [PROJECT_REPORT.md](file:///c:/Users/91860/Desktop/Projects/Product_price/Product_Price-Tracker/PROJECT_REPORT.md)
 - 📄 **PDF Report**: [PriceTrack_Project_Report.pdf](file:///c:/Users/91860/Desktop/Projects/Product_price/Product_Price-Tracker/PriceTrack_Project_Report.pdf)
-- 🌐 **Browser PDF View**: [http://localhost:5000/report](http://localhost:5000/report)
 
 ---
 
 ## 📜 License
 This project is licensed under the ISC License.
+
