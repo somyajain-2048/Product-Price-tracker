@@ -49,6 +49,14 @@ export const searchAllSites = async (query) => {
     searchFlipkart(clean),
     searchMyntra(clean),
   ]);
+
+  const siteNames = ["Amazon", "Flipkart", "Myntra"];
+  results.forEach((r, idx) => {
+    if (r.status === "rejected") {
+      console.warn(`[searchAllSites] ${siteNames[idx]} search failed:`, r.reason?.message || r.reason);
+    }
+  });
+
   return results
     .filter((r) => r.status === "fulfilled" && r.value !== null)
     .map((r) => r.value);

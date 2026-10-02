@@ -1,10 +1,24 @@
 import puppeteer from "puppeteer";
 
+const PUPPETEER_ARGS = [
+  "--no-sandbox",
+  "--disable-setuid-sandbox",
+  "--disable-dev-shm-usage",
+  "--disable-gpu",
+  "--no-zygote",
+  "--disable-blink-features=AutomationControlled",
+  "--disable-infobars",
+  "--window-size=1366,768",
+];
+
+const getLaunchOptions = () => ({
+  headless: true,
+  args: PUPPETEER_ARGS,
+  ...(process.env.PUPPETEER_EXECUTABLE_PATH ? { executablePath: process.env.PUPPETEER_EXECUTABLE_PATH } : {}),
+});
+
 export const scrapeGeneric = async (url) => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-blink-features=AutomationControlled"],
-  });
+  const browser = await puppeteer.launch(getLaunchOptions());
 
   try {
     const page = await browser.newPage();

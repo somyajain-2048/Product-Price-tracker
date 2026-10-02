@@ -4,13 +4,15 @@ services:
     name: pricetrack-backend
     env: node
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm install && npx puppeteer browsers install chrome
     startCommand: npm start
     envVars:
       - key: PORT
         value: 5000
       - key: NODE_ENV
         value: production
+      - key: PUPPETEER_CACHE_DIR
+        value: /opt/render/project/src/backend/.cache/puppeteer
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET
@@ -27,3 +29,6 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
