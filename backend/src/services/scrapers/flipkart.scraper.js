@@ -122,8 +122,8 @@ export const searchFlipkart = async (query) => {
     await page.setViewport({ width: 1366, height: 768 });
 
     const url = `https://www.flipkart.com/search?q=${encodeURIComponent(query)}`;
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
-    await new Promise((r) => setTimeout(r, 2000));
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
+    await new Promise((r) => setTimeout(r, 1500));
 
     try {
       await page.click("button._2KpZ6l", { timeout: 3000 });

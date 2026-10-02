@@ -44,21 +44,31 @@ export const searchProduct = async (query, targetSite) => {
 
 export const searchAllSites = async (query) => {
   const clean = cleanSearchQuery(query);
-  const results = await Promise.allSettled([
-    searchAmazon(clean),
-    searchFlipkart(clean),
-    searchMyntra(clean),
-  ]);
+  const results = [];
 
-  const siteNames = ["Amazon", "Flipkart", "Myntra"];
-  results.forEach((r, idx) => {
-    if (r.status === "rejected") {
-      console.warn(`[searchAllSites] ${siteNames[idx]} search failed:`, r.reason?.message || r.reason);
-    }
-  });
+  // Run searches sequentially to stay within Render's 512MB RAM limit
+  // Running 3 browsers in parallel exhausts memory and causes 502 Bad Gateway (OOM) crashes
+  try {
+    const amazon = await searchAmazon(clean);
+    if (amazon) results.push(amazon);
+  } catch (err) {
+    console.warn("[searchAllSites] Amazon search failed:", err.message);
+  }
 
-  return results
-    .filter((r) => r.status === "fulfilled" && r.value !== null)
-    .map((r) => r.value);
+  try {
+    const flipkart = await searchFlipkart(clean);
+    if (flipkart) results.push(flipkart);
+  } catch (err) {
+    console.warn("[searchAllSites] Flipkart search failed:", err.message);
+  }
+
+  try {
+    const myntra = await searchMyntra(clean);
+    if (myntra) results.push(myntra);
+  } catch (err) {
+    console.warn("[searchAllSites] Myntra search failed:", err.message);
+  }
+
+  return results;
 };
 

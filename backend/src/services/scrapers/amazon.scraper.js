@@ -122,8 +122,8 @@ export const searchAmazon = async (query) => {
     });
 
     const url = `https://www.amazon.in/s?k=${encodeURIComponent(query)}`;
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
-    await new Promise((r) => setTimeout(r, 2000));
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
+    await new Promise((r) => setTimeout(r, 1500));
 
     const result = await page.evaluate(() => {
       const cards = Array.from(document.querySelectorAll('div[data-component-type="s-search-result"]'));

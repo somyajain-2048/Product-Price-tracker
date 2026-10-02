@@ -45,4 +45,12 @@ app.get("/test-scraper", async (req, res) => {
 });
 
 
+// Global Error Handler (preserves CORS headers on uncaught errors)
+app.use((err, req, res, next) => {
+  console.error("Unhandled Server Error:", err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal Server Error",
+  });
+});
+
 export default app;

@@ -33,7 +33,7 @@ export const searchMyntra = async (query) => {
     await page.setViewport({ width: 1366, height: 768 });
 
     const url = `https://www.myntra.com/search?rawQuery=${encodeURIComponent(query)}`;
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
 
     try {
       await page.waitForSelector("li.product-base", { timeout: 10000 });
